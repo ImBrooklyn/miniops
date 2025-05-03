@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: miniops-busybox-j
+  kafka:
+    bootstrap-servers:
+    - "127.0.0.1:9092"
+
+server:
+  port: 8080
+
+logging:
+  file:
+    path: ./log
+
+management:
+  server:
+    port: 13080
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      access: read_only
+      probes:
+        enabled: true

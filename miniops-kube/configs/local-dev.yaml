@@ -1,0 +1,11 @@
+app_name: miniops-kube
+port: 8567
+locale: zh
+warehouse:
+  url: "http://localhost:8321/warehouse"
+confer:
+  url: "http://localhost:8633/confer"
+
+cli:
+  auth_key: miniops-kube-dev
+  auth_secret: miniops-kube-dev-secret

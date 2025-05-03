@@ -1,0 +1,60 @@
+server:
+  port: 8633
+  servlet:
+    context-path: /confer
+
+spring:
+  application:
+    name: miniops-confer
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:33306/confer?serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    type: com.zaxxer.hikari.HikariDataSource
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        show-sql: true
+        use_sql_comments: true
+    show-sql: true
+
+warehouse:
+  url: "http://127.0.0.1:8321"
+
+logging:
+  file:
+    path: ./log
+  level:
+    uk:
+      org:
+        brooklyn:
+          miniops:
+            warehouse: DEBUG
+    org:
+      hibernate:
+        SQL: DEBUG
+        orm:
+          jdbc:
+            bind: TRACE
+
+management:
+  server:
+    port: 13633
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      access: read_only
+      probes:
+        enabled: true
