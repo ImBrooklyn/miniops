@@ -93,14 +93,14 @@ func ApplyDeployment(ctx context.Context, d *Deployment) error {
     readiness := d.App.Readiness
     readinessParam := ParseReadinessParams(readiness.Params)
 
-    repo := "miniops-snapshot"
+    repo := "miniops-prerelease"
     if d.Artifact.Prerelease == "" {
         repo = "miniops-release"
     }
 
     container := corev1.Container{
         Name:  fmt.Sprintf("%s-container", d.Name()),
-        Image: fmt.Sprintf("%s/%s:%s", repo, d.App.Name, d.Artifact.Version),
+        Image: fmt.Sprintf("%s/%s:%s", repo, d.AppName(), d.Artifact.Version),
         Ports: ports,
         Env: []corev1.EnvVar{
             {
@@ -108,12 +108,16 @@ func ApplyDeployment(ctx context.Context, d *Deployment) error {
                 Value: d.Namespace(),
             },
             {
+                Name:  "MINIOPS_DEPLOYMENT_NAME",
+                Value: d.Name(),
+            },
+            {
                 Name:  "MINIOPS_APP_NAME",
                 Value: d.Deployment.AppName,
             },
             {
-                Name:  "MINIOPS_DEPLOYMENT_NAME",
-                Value: d.Name(),
+                Name:  "MINIOPS_NAMESPACE",
+                Value: d.Namespace(),
             },
             {
                 Name:  "MINIOPS_DEPLOYMENT_SUFFIX",
@@ -457,66 +461,6 @@ func DeleteDeploymentSvc(ctx context.Context, d *Deployment) error {
         zap.L().Error("failed to delete service", zap.Error(err))
         return errors.New("failed to delete service")
     }
-    return nil
-}
-
-func ApplyConfigMap(ctx context.Context, name, namespace string, data map[string]string) error {
-    configMap := &corev1.ConfigMap{
-        ObjectMeta: metav1.ObjectMeta{
-            Name: name,
-        },
-        Data: data,
-    }
-
-    currentConfigmap, err := clientSet().CoreV1().
-        ConfigMaps(namespace).
-        Get(ctx, name, metav1.GetOptions{})
-    zap.L().Error("failed to get configmap", zap.Error(err))
-    if err == nil && currentConfigmap != nil {
-        _, err = clientSet().CoreV1().
-            ConfigMaps(namespace).
-            Update(ctx, configMap, metav1.UpdateOptions{})
-    } else {
-        _, err = clientSet().CoreV1().
-            ConfigMaps(namespace).
-            Create(ctx, configMap, metav1.CreateOptions{})
-    }
-
-    if err != nil {
-        zap.L().Error("failed to apply configmap", zap.Error(err))
-        return errors.New("failed to apply configmap")
-    }
-
-    return nil
-}
-
-func ApplySecret(ctx context.Context, name, namespace string, data map[string]string) error {
-    secret := &corev1.Secret{
-        ObjectMeta: metav1.ObjectMeta{
-            Name: name,
-        },
-        StringData: data,
-    }
-
-    currentSecret, err := clientSet().CoreV1().
-        Secrets(namespace).
-        Get(ctx, name, metav1.GetOptions{})
-    zap.L().Error("failed to get configmap", zap.Error(err))
-    if err == nil && currentSecret != nil {
-        _, err = clientSet().CoreV1().
-            Secrets(namespace).
-            Update(ctx, secret, metav1.UpdateOptions{})
-    } else {
-        _, err = clientSet().CoreV1().
-            Secrets(namespace).
-            Create(ctx, secret, metav1.CreateOptions{})
-    }
-
-    if err != nil {
-        zap.L().Error("failed to apply secret", zap.Error(err))
-        return errors.New("failed to apply secret")
-    }
-
     return nil
 }
 

@@ -25,5 +25,6 @@ func Router() *gin.Engine {
     apiGrp := g.Group("/kube")
 
     router.InitDeploymentRouter(apiGrp)
+    router.InitPodRouter(apiGrp)
     return g
 }
